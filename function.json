@@ -1,0 +1,148 @@
+{
+  "type": "scalar.function",
+  "input_schema": {
+    "type": "object",
+    "description": "An image containing a cat to evaluate for proportional presence, measuring how much of the frame the cat occupies and how whole and complete its form appears.",
+    "properties": {
+      "image": {
+        "type": "image",
+        "description": "The image containing a cat whose proportional presence within the frame will be evaluated. This can be any photograph, illustration, or rendering that contains a cat."
+      }
+    },
+    "required": [
+      "image"
+    ]
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.image"
+            },
+            {
+              "type": "text",
+              "text": "Look at this photograph of a cat. How much of the visible frame does the cat physically occupy?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The cat takes up the majority of the frame — it is large and visually dominant, claiming most of the available space in the image."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is medium-sized within the frame, taking up a moderate share of the visible area without being especially large or especially small."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is small or barely visible, occupying very little of the frame — it is tiny, distant, or lost within a much larger scene."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.image"
+            },
+            {
+              "type": "text",
+              "text": "Examine this image of a cat carefully. Is the cat's body whole and fully visible within the frame, or has it been cropped or cut off by the edges?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The cat's body appears whole and intact. I can see its full form — head, ears, torso, legs, and tail — generously contained within the frame with room to spare."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Parts of the cat are clipped by the edges of the frame, but the face and most of the body remain visible. It feels partially cropped rather than fully complete."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is heavily cropped or fragmented. Significant portions of its body are cut away by the frame edges, leaving the impression of a piece of a cat rather than a whole animal."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "developer",
+          "content": [
+            {
+              "type": "text",
+              "text": "You are a photography curator selecting images where the cat is the commanding, central subject of the photograph. You evaluate whether the cat's proportional presence makes it feel like the weighty, anchoring subject of the image."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.image"
+            },
+            {
+              "type": "text",
+              "text": "Would you describe the cat in this image as the dominant, commanding subject of the frame?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "Absolutely. The cat commands this image with unmistakable visual authority — it fills the frame substantially with its whole form, anchoring the composition and demanding the viewer's full attention through its sheer proportional presence."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is noticeable but does not fully dominate the composition. It is present and identifiable, but the surrounding scene or empty space dilutes its visual weight, preventing it from feeling like the commanding subject."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat feels incidental here — it is an afterthought in the scene rather than a commanding focal point. It lacks the proportional presence needed to anchor the image as its subject."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    }
+  ],
+  "description": "Scores how proportionally present a cat is within an image (0 to 1) by evaluating spatial occupation, bodily completeness, and compositional substantiality. High scores mean the cat fills the frame generously with its whole, intact form. Low scores mean the cat is tiny, distant, or so heavily cropped it feels fragmented."
+}
